@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, send_file
 from datetime import datetime
 from collections import defaultdict
-import time
+from time import time
 import sqlite3
 import hashlib
 import os
@@ -601,7 +601,7 @@ def index():
         # 记录本次提交
         if client_ip not in ip_submit_count:
             ip_submit_count[client_ip] = []
-        ip_submit_count[client_ip].append(time.time())
+        ip_submit_count[client_ip].append(time())
 
         
         distance = float(request.form['distance'])
