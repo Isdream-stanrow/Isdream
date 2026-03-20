@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, send_file
 from datetime import datetime
 from collections import defaultdict
-from time import time
+import time as time_module
 import sqlite3
 import hashlib
 import os
@@ -38,8 +38,7 @@ def sanitize_input(input_string, max_length=50):
     if len(input_string) > max_length:
         input_string = input_string[:max_length]
 
-    if input_string != cleaned:
-        log_attack("XSS尝试", f"清理前: {input_string[:50]}...")
+    
     
     # 移除所有HTML标签（允许基本标点）
     # 只允许中文、英文、数字、空格和常见标点
@@ -55,6 +54,8 @@ def sanitize_input(input_string, max_length=50):
     
     for pattern in dangerous_patterns:
         cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+    if input_string != cleaned:
+        log_attack("XSS尝试", f"清理前: {input_string[:50]}...")
     
     return cleaned.strip()
 
@@ -77,7 +78,7 @@ def generate_math_captcha():
 
 def check_ip_limit(ip):
     """检查IP是否超出限制"""
-    now = time.time()
+    now = time_module.time()
     
     # 检查是否在封锁名单
     if ip in blocked_ips:
@@ -601,7 +602,7 @@ def index():
         # 记录本次提交
         if client_ip not in ip_submit_count:
             ip_submit_count[client_ip] = []
-        ip_submit_count[client_ip].append(time())
+        ip_submit_count[client_ip].append(time_module.time())
 
         
         distance = float(request.form['distance'])
