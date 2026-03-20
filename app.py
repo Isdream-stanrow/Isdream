@@ -26,7 +26,7 @@ DATABASE = 'database.db'
 
 def sanitize_input(input_string, max_length=50):
     """
-    清理用户输入，防止XSS攻击
+    清理用户输入,防止XSS攻击
     - 移除HTML标签
     - 转义特殊字符
     - 限制长度
@@ -37,6 +37,9 @@ def sanitize_input(input_string, max_length=50):
     # 限制长度
     if len(input_string) > max_length:
         input_string = input_string[:max_length]
+
+    if input_string != cleaned:
+        log_attack("XSS尝试", f"清理前: {input_string[:50]}...")
     
     # 移除所有HTML标签（允许基本标点）
     # 只允许中文、英文、数字、空格和常见标点
@@ -58,7 +61,7 @@ def sanitize_input(input_string, max_length=50):
 def generate_math_captcha():
     """生成算术验证码"""
     ops = ['+', '-', '*']
-    a = random.randint(1,99)
+    a = random.randint(1, 99)
     b = random.randint(1, 9)
     op = random.choice(ops)
     

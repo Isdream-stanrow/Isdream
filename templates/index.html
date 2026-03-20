@@ -714,7 +714,7 @@
                 const escapedDate = escapeHtml(row.date);
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td><a href="/user/${row.name}" style="color: #3498db; text-decoration: none; font-weight: 600;">${row.name}</a></td>
+                    <td><a href="/user/${encodeURIComponent(row.name)}" style="color: #3498db; text-decoration: none; font-weight: 600;">${escapeHtml(row.name)}</a></td>
                     <td>${row.distance.toFixed(2)}</td>
                     <td>${row.time.toFixed(1)}</td>
                     <td>${row.speed ? row.speed.toFixed(4) : '-'}</td>
