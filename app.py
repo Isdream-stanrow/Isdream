@@ -9,6 +9,8 @@ import secrets
 import random
 import html
 import re
+import shutil
+import tempfile
 
 ip_submit_count = defaultdict(list)
 IP_LIMIT = 5  # 每个IP每分钟最多5次提交
@@ -620,12 +622,6 @@ def index():
             # 公开提交，anonymous_id 为 NULL
             anonymous_id = None
         # 处理上传数据
-        if client_ip not in ip_submit_count:
-            ip_submit_count[client_ip] = []
-        ip_submit_count[client_ip].append(time.time())
-        
-        
-        display_name = name
 
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
