@@ -83,10 +83,10 @@
                     <td>{{ ride[0]}}</td> <!-- id -->
                     <td>
                         {% if ride[5] %} <!-- is_anonymous -->
-                            <span class="anon-badge">匿名</span> {{ ride[6] }} <!-- anonymous_id -->
+                            <span class="anon-badge">匿名</span> {{ ride[6]|e if ride[6] is not none else ''  }} <!-- anonymous_id -->
                             <br><small style="color: #95a5a6;">(原名: {{ ride[1] }})</small>
                         {% else %}
-                            <strong>{{ ride[1] }}</strong> <!-- name -->
+                            <strong>{{ ride[1]|e }}</strong> <!-- name -->
                         {% endif %}
                     </td>
                     <td>{{ "%.2f"|format(ride[2]) }}</td> <!-- distance -->
@@ -102,7 +102,7 @@
                     <td class="action-cell">
                         <button class="delete-btn" 
                             data-id="{{ ride[0] }}" 
-                            data-name="{% if ride[5] %}{{ ride[6]  }}{% else %}{{ ride[1]  }}{% endif %}"
+                            data-name="{% if ride[5] %}{{ ride[6]|e if ride[6] is not none else '匿名用户' }}{% else %}{{ ride[1]|e  }}{% endif %}"
                             onclick="deleteRecord(this.dataset.id, this.dataset.name)">删除</button>
                     </td>
                 </tr>
