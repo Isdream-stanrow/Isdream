@@ -578,10 +578,10 @@ def index():
         name = sanitize_input(raw_name, max_length=12)
 
         if not name:
-        return jsonify({
-            "success": False,
-            "message": "姓名不能为空或包含非法字符"
-        }), 400
+                    return jsonify({
+                    "success": False,
+                    "message": "姓名不能为空或包含非法字符"
+                    }), 400
         raw_date = request.form.get('date', '')
         if raw_date:
             # 验证日期格式：YYYY-MM-DD
