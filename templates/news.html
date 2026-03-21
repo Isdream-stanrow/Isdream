@@ -93,7 +93,7 @@
         /* 为移动端优化 */
         @media (max-width: 1100px) {
             .sidebar-nav {
-            position: fixed;
+                position: fixed;
                 bottom: 0;
                 top: auto;
                 left: 0;
@@ -101,29 +101,35 @@
                 transform: none;
                 flex-direction: row;
                 justify-content: space-around;
-                padding: 10px 5px;
-                border-radius: 15px 15px 0 0;
-                box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-            }
-    
+                padding: 12px 5px 15px; /* 增加底部内边距，为手机Home条留空间 */
+                border-radius: 20px 20px 0 0; /* 更大的顶部圆角 */
+                box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+        }
             .sidebar-nav a {
-            padding: 8px 5px;
+                padding: 8px 5px 6px;
             }
-    
-            .sidebar-nav .text {
-                font-size: 0.7rem;
-            }
-    
             .sidebar-nav .icon {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
                 margin-bottom: 3px;
             }
-    
-            /* 在移动端，为主内容增加底部内边距，防止被侧边栏遮挡 */
+            .sidebar-nav .text {
+                font-size: 0.7rem;
+                font-weight: 600;
+            }
+    /* 在移动端，为主内容增加底部内边距，防止被底部导航栏遮挡 */
             .container {
                 padding-bottom: 80px;
             }
         }
+        @media (max-width: 400px) {
+            .sidebar-nav .text {
+                font-size: 0.65rem;
+            }
+            .sidebar-nav .icon {
+                font-size: 1.3rem;
+            }
+        }   
     </style>
 </head>
 <body>
