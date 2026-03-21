@@ -762,7 +762,7 @@
         <button onclick="clearSearch()" style="padding: 8px 12px; background: #95a5a6; color: white; border: none; border-radius: 6px;">清空</button>
     </div>
 </div>
-    <h2>实时排行榜</h2>
+    <h2>实时排行榜(点击排行榜中的姓名可以查看详细个人统计喵)</h2>
     <select id="sortOption">
     <option value="distance">按距离排序</option>
     <option value="speed">按均速排序</option>
@@ -784,11 +784,23 @@
         </tbody>
     </table>
 </div>
-<div style="text-align: center; margin: 20px 0; color: #7f8c8d;">
-    <p>点击排行榜中的姓名可以查看详细个人统计喵</p>
-</div>
 <div style="text-align: center; margin-top: 40px; color: #bdc3c7; font-size: 0.8rem;">
-    <a href="/admin/login" style="color: inherit; text-decoration: none;">管理</a>
+    <a href="/admin/login" id="admin-corner-link" style="
+    position: fixed; /* 固定定位 */
+    top: 20px; /* 距离顶部 20 像素 */
+    right: 20px; /* 距离右侧 20 像素 */
+    z-index: 1001; /* 确保浮于大部分内容之上 */
+    color: #bdc3c7; /* 保持原有浅灰色 */
+    font-size: 0.8rem; /* 保持小字体 */
+    text-decoration: none; /* 去除下划线 */
+    padding: 5px 10px; /* 增加一点内边距，方便点击 */
+    background-color: rgba(255, 255, 255, 0.7); /* 半透明白色背景，提高在复杂背景上的可读性 */
+    border-radius: 3px; /* 轻微圆角 */
+    transition: all 0.3s ease; /* 添加过渡效果 */
+    backdrop-filter: blur(5px); /* 毛玻璃背景效果（可选，增强质感） */
+">
+    管理
+</a>
 </div>
 <script>
     function refreshCaptcha() {
