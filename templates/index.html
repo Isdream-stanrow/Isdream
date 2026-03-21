@@ -509,26 +509,50 @@
         display: none; /* 在小屏幕上隐藏复杂表头 */
     }
     tbody tr {
-        display: block; /* 将每行变为块级元素 */
+        display: block;
         border-bottom: 1px solid #eee;
-        padding: 10px 0;
+        padding: 12px 0; /* 增加垂直内边距，使卡片更饱满 */
+        margin-bottom: 8px; /* 卡片之间的间距 */
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
+        transition: all 0.2s ease; /* 添加悬停效果过渡 */
+    }
+    tbody tr:last-child {
+        margin-bottom: 0; /* 最后一行不需要底部外边距 */
+    }
+    
+    tbody tr:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* 悬停时阴影加深 */
+        transform: translateY(-1px); /* 轻微的悬停上浮效果 */
     }
     tbody td {
-        display: block; /* 每个单元格变为块级，纵向排列 */
-        text-align: right;
-        padding: 5px 10px;
-        border: none;
-        position: relative;
+        display: flex; /* 使用弹性布局 */
+        justify-content: space-between; /* 标签和数据分别两端对齐 */
+        align-items: center; /* 垂直居中对齐 */
+        padding: 8px 10px; /* 增加内边距，更易点击 */
+        border-bottom: 1px solid #f0f0f0; /* 添加细分割线 */
+        text-align: left; /* 主文本恢复左对齐 */
+        position: relative; /* 保留，用于其他可能需要定位的子元素 */
     }
     tbody td:before {
         /* 使用CSS伪元素为每个数据添加“标签” */
         content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        font-weight: bold;
-        color: #7f8c8d;
+        position: static; /* 恢复静态定位，参与flex布局 */
+        font-weight: 600;
+        color: #2c3e50; /* 使用更醒目的颜色 */
+        margin-right: 15px; /* 标签和数据之间的固定间距 */
+        flex-shrink: 0; /* 防止标签被压缩 */
+        min-width: 80px; /* 为标签设置一个最小宽度，保持对齐 */
         text-align: left;
     }
+    tbody td .cell-data {
+    /* 如果需要，可以为数据部分添加特定样式 */
+        text-align: right;
+        font-weight: 500;
+        color: #333;
+        word-break: break-all; /* 长数据允许换行 */
+}
     button:active, a:active {
         opacity: 0.7;
         transform: scale(0.98);
