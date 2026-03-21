@@ -307,8 +307,60 @@
         font-weight: 500;
         border-left: 4px solid #2196f3;
     }
+    .sidebar-nav {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 12px;
+            padding: 20px 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }   
+
+        .sidebar-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #7f8c8d;
+            padding: 12px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: #f1f8ff;
+            color: #3498db;
+            transform: translateX(3px);
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .sidebar-nav .icon {
+         font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-nav .text {
+        font-size: 0.8rem;
+        font-weight: 500;
+        white-space: nowrap;
+        }
+    
     /* 为移动端优化 */
-        
+    
     @media (max-width: 400px) {
             .sidebar-nav .text {
                 font-size: 0.65rem;
