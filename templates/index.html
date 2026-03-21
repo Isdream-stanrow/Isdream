@@ -380,10 +380,19 @@
     /* 响应式设计 */
     @media (max-width: 768px) {
         .container {
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px 0 100px !important; /* 左右内边距改为0，让表格占满 */
+            border-radius: 12px;
+            overflow: visible; /* 允许表格溢出容器 */
+            position: relative; /* 为内部绝对定位元素提供参考 */
         }
-        
+        .table-container {
+            width: 100%;
+            overflow-x: visible; /* 允许内容溢出 */
+            position: relative;
+            margin: 0 -10px; /* 负外边距抵消容器内边距 */
+            padding: 0 10px; /* 重新添加内边距 */
+            box-sizing: border-box;
+        }
         h1 {
             font-size: 1.8rem;
         }
@@ -531,7 +540,7 @@
         margin-top: 5px;
     }
     .container {
-        padding: 12px 15px 100px !important; /* 调整内边距，底部为底部导航留出空间 */
+        padding: 12px 10px 100px !important; /* 调整内边距，底部为底部导航留出空间 */
         border-radius: 12px;
     }
     h1 {
@@ -570,58 +579,7 @@
     #searchName {
         width: calc(100% - 80px) !important; /* 搜索框占据主要宽度 */
     }
-    table {
-        display: block;
-        border-radius: 8px;
-    }
-    thead {
-        display: none; /* 在小屏幕上隐藏复杂表头 */
-    }
-    tbody tr {
-        display: block;
-        border-bottom: 1px solid #eee;
-        padding: 12px 0; /* 增加垂直内边距，使卡片更饱满 */
-        margin-bottom: 8px; /* 卡片之间的间距 */
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* 更柔和的阴影 */
-        transition: all 0.2s ease; /* 添加悬停效果过渡 */
-    }
-    tbody tr:last-child {
-        margin-bottom: 0; /* 最后一行不需要底部外边距 */
-    }
     
-    tbody tr:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* 悬停时阴影加深 */
-        transform: translateY(-1px); /* 轻微的悬停上浮效果 */
-    }
-    tbody td {
-        display: flex; /* 使用弹性布局 */
-        justify-content: space-between; /* 标签和数据分别两端对齐 */
-        align-items: center; /* 垂直居中对齐 */
-        padding: 8px 10px; /* 增加内边距，更易点击 */
-        border-bottom: 1px solid #f0f0f0; /* 添加细分割线 */
-        text-align: left; /* 主文本恢复左对齐 */
-        position: relative; /* 保留，用于其他可能需要定位的子元素 */
-    }
-    tbody td:before {
-        /* 使用CSS伪元素为每个数据添加“标签” */
-        content: attr(data-label);
-        position: static; /* 恢复静态定位，参与flex布局 */
-        font-weight: 600;
-        color: #2c3e50; /* 使用更醒目的颜色 */
-        margin-right: 15px; /* 标签和数据之间的固定间距 */
-        flex-shrink: 0; /* 防止标签被压缩 */
-        min-width: 80px; /* 为标签设置一个最小宽度，保持对齐 */
-        text-align: left;
-    }
-    tbody td .cell-data {
-    /* 如果需要，可以为数据部分添加特定样式 */
-        text-align: right;
-        font-weight: 500;
-        color: #333;
-        word-break: break-all; /* 长数据允许换行 */
-}
     button:active, a:active {
         opacity: 0.7;
         transform: scale(0.98);
@@ -768,6 +726,7 @@
     <option value="speed">按均速排序</option>
     <option value="date">按日期排序</option>
 </select>
+<div class="table-container">
     <table>
         <thead>
         <tr>
