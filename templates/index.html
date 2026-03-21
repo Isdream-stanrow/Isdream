@@ -385,14 +385,7 @@
             overflow: visible; /* 允许表格溢出容器 */
             position: relative; /* 为内部绝对定位元素提供参考 */
         }
-        .table-container {
-            width: 100%;
-            overflow-x: visible; /* 允许内容溢出 */
-            position: relative;
-            margin: 0 -10px; /* 负外边距抵消容器内边距 */
-            padding: 0 10px; /* 重新添加内边距 */
-            box-sizing: border-box;
-        }
+        
         h1 {
             font-size: 1.8rem;
         }
@@ -639,6 +632,26 @@
             white-space: nowrap;
         }
         }
+        @media (min-width: 769px) and (max-width: 1100px) {
+            .container {
+                width: 95%; /* 让容器稍微收缩，留出边距 */
+                max-width: none; /* 移除最大宽度限制 */
+                padding: 20px; /* 减少内边距 */
+            }
+    
+            table {
+                width: 100%;
+                table-layout: fixed; /* 固定表格布局，列宽更均匀 */
+            }
+    
+    /* 调整列宽，让表格更紧凑 */
+            table th:nth-child(1), table td:nth-child(1) { width: 10%; } /* 排名 */
+            table th:nth-child(2), table td:nth-child(2) { width: 20%; } /* 姓名 */
+            table th:nth-child(3), table td:nth-child(3) { width: 15%; } /* 距离 */
+            table th:nth-child(4), table td:nth-child(4) { width: 15%; } /* 时间 */
+            table th:nth-child(5), table td:nth-child(5) { width: 20%; } /* 均速 */
+            table th:nth-child(6), table td:nth-child(6) { width: 20%; } /* 日期 */
+        }
 </style>
 </head>
 <body>
@@ -726,7 +739,6 @@
     <option value="speed">按均速排序</option>
     <option value="date">按日期排序</option>
 </select>
-<div class="table-container">
     <table>
         <thead>
         <tr>
