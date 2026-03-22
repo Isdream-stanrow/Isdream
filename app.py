@@ -134,7 +134,6 @@ def check_ip_limit(ip):
 
 # 初始化数据库
 def init_db():
-        """初始化数据库表结构"""
     conn = get_db_connection()
     cursor = get_db_cursor(conn)
     
