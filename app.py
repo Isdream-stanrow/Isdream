@@ -54,6 +54,10 @@ def get_db_connection():
         conn = sqlite3.connect('database.db')
     return conn
 
+def get_db_cursor(conn):
+    """获取数据库游标"""
+    return conn.cursor()
+
 def sanitize_input(input_string, max_length=50):
     """
     清理用户输入,防止XSS攻击
@@ -131,8 +135,8 @@ def check_ip_limit(ip):
 # 初始化数据库
 def init_db():
         """初始化数据库表结构"""
-        conn = get_db_connection()
-        cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     
     if USING_POSTGRESQL:
         # PostgreSQL 建表语句 (注意语法差异)
@@ -167,9 +171,12 @@ with app.app_context():
     init_db()
 # 获取排行榜数据（按距离降序）
 def get_ranking():
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
+    if USING_POSTGRESQL:
+        cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
+    else:
+        cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
     results = cursor.fetchall()
     conn.close()
     return results
@@ -224,8 +231,8 @@ def batch_delete():
     if not isinstance(ids, list) or len(ids) == 0:
         return jsonify({"success": False, "error": "ID列表格式错误"}), 400
     
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     deleted_count = 0
     
     try:
@@ -249,19 +256,30 @@ def batch_delete():
 @app.route('/news')
 def news_page():
     """新闻公告页面"""
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     
     # 1. 获取本月骑行冠军
     current_month = datetime.now().strftime('%Y-%m')
-    cursor.execute('''
-        SELECT name, SUM(distance) as total_distance
-        FROM rides 
-        WHERE strftime('%Y-%m', date) = ? AND time > 0
-        GROUP BY name 
-        ORDER BY total_distance DESC
-        LIMIT 3
-    ''', (current_month,))
+    if USING_POSTGRESQL:
+        cursor.execute('''
+            SELECT name, SUM(distance) as total_distance
+            FROM rides 
+            WHERE to_char(date, 'YYYY-MM') = %s AND time > 0
+            GROUP BY name 
+            ORDER BY total_distance DESC
+            LIMIT 3
+        ''', (current_month,))
+    else:
+        cursor.execute('''
+            SELECT name, SUM(distance) as total_distance
+            FROM rides 
+            WHERE strftime('%Y-%m', date) = ? AND time > 0
+            GROUP BY name 
+            ORDER BY total_distance DESC
+            LIMIT 3
+        ''', (current_month,))
+    
     monthly_champs = cursor.fetchall()
     
     # 2. 获取统计数据
@@ -293,6 +311,9 @@ def download_database():
         return "未授权访问", 403
     
      # 额外的安全验证：检查Referer，确保请求来自管理页面
+    if USING_POSTGRESQL:
+        return "PostgreSQL数据库不支持直接下载，请使用备份功能", 400
+    
     referer = request.headers.get('Referer')
     if referer and '/admin' not in referer:
         # 可以记录这个可疑请求
@@ -334,6 +355,9 @@ def restore_database():
     """恢复数据库（仅管理员可访问）"""
     if not session.get('is_admin'):
         return "未授权访问", 403
+    
+    if USING_POSTGRESQL:
+        return "PostgreSQL数据库不支持通过网页恢复", 400
     
     if request.method == 'POST':
         # 检查是否上传了文件
@@ -393,6 +417,9 @@ def list_backups():
     if not session.get('is_admin'):
         return "未授权访问", 403
 
+    if USING_POSTGRESQL:
+        return "PostgreSQL数据库不支持文件备份列表", 400
+    
     backups = []
     for file in os.listdir('.'):
         if file.startswith('cycling.db.backup.') or file.endswith('_backup.db'):
@@ -418,9 +445,8 @@ def admin_panel():
         return redirect('/admin/login')
     
     # 2. 获取所有数据
-    conn = sqlite3.connect(DATABASE)
-    # 按日期倒序排列，方便查看最新数据
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     cursor.execute('''
         SELECT id, name, distance, time, date, is_anonymous, anonymous_id 
         FROM rides 
@@ -443,10 +469,13 @@ def admin_delete(ride_id):
         return jsonify({"success": False, "error": "未登录或会话已过期。"}), 403
     
     # 2. 执行删除
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     try:
-        cursor.execute('DELETE FROM rides WHERE id = ?', (ride_id,))
+        if USING_POSTGRESQL:
+            cursor.execute('DELETE FROM rides WHERE id = %s', (ride_id,))
+        else:
+            cursor.execute('DELETE FROM rides WHERE id = ?', (ride_id,))
         conn.commit()
         deleted = cursor.rowcount > 0  # 检查是否成功删除了行
     except Exception as e:
@@ -494,17 +523,27 @@ def admin_logout():
 @app.route('/user/<identifier>')
 def user_stats(identifier):
     """个人骑行统计页面"""
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
     
     # 1. 获取用户所有骑行记录
-    cursor.execute('''
-        SELECT date, distance, time, (60 * distance / time) as speed, 
-            is_anonymous, anonymous_id, name
-        FROM rides 
-        WHERE (name = ? OR anonymous_id = ?) AND time > 0
-        ORDER BY date DESC
-    ''', (identifier, identifier))
+    if USING_POSTGRESQL:
+        cursor.execute('''
+            SELECT date, distance, time, (60 * distance / time) as speed, 
+                is_anonymous, anonymous_id, name
+            FROM rides 
+            WHERE (name = %s OR anonymous_id = %s) AND time > 0
+            ORDER BY date DESC
+        ''', (identifier, identifier))
+    else:
+        cursor.execute('''
+            SELECT date, distance, time, (60 * distance / time) as speed, 
+                is_anonymous, anonymous_id, name
+            FROM rides 
+            WHERE (name = ? OR anonymous_id = ?) AND time > 0
+            ORDER BY date DESC
+        ''', (identifier, identifier))
+    
     records = cursor.fetchall()
     
     if not records:
@@ -710,19 +749,25 @@ def get_ranking_json():
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
     search_name = request.args.get('search_name', '')
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    base_query = '''
-        SELECT name, 
-        distance,
-        time, 
-        date, 
-        (60*distance / time) AS speed,
-        is_anonymous,
-        anonymous_id
-    FROM rides 
-    WHERE time > 0
-    '''
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
+    if USING_POSTGRESQL:
+        base_query = '''
+            SELECT name, distance, time, date, 
+                   (60 * distance / NULLIF(time, 0)) AS speed,
+                   is_anonymous, anonymous_id
+            FROM rides 
+            WHERE time > 0
+        '''
+    else:
+        base_query = '''
+            SELECT name, distance, time, date, 
+                   (60 * distance / time) AS speed,
+                   is_anonymous, anonymous_id
+            FROM rides 
+            WHERE time > 0
+        '''
+    
     conditions = []
     params = []
     if start_date:
