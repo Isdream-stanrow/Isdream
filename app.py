@@ -26,21 +26,26 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-if DATABASE_URL:
-    # 解析Render的PostgreSQL URL
-    result = urlparse(DATABASE_URL)
-    DB_CONFIG = {
-        'dbname': result.path[1:],
-        'user': result.username,
-        'password': result.password,
-        'host': result.hostname,
-        'port': result.port,
-    }
-    USING_POSTGRESQL = True
-else:
-    # 本地开发时，可回退到SQLite（便于测试）
-    USING_POSTGRESQL = False
-    import sqlite3  # 本地开发时才导入
+def get_db_placeholder():
+    """返回当前数据库类型的占位符"""
+    return '%s' if USING_POSTGRESQL else '?'
+
+def get_db_connection():
+    if DATABASE_URL:
+        # 解析Render的PostgreSQL URL
+        result = urlparse(DATABASE_URL)
+        DB_CONFIG = {
+            'dbname': result.path[1:],
+            'user': result.username,
+            'password': result.password,
+            'host': result.hostname,
+            'port': result.port,
+        }
+        USING_POSTGRESQL = True
+    else:
+        # 本地开发时，可回退到SQLite（便于测试）
+        USING_POSTGRESQL = False
+        import sqlite3  # 本地开发时才导入
     return conn
 
 def sanitize_input(input_string, max_length=50):
@@ -240,7 +245,7 @@ def news_page():
     cursor = conn.cursor()
     
     # 1. 获取本月骑行冠军
-    current_month = datetime.now().strftime('%Y-%m')
+    current_month = datetime.now().EXTRACT(YEAR_MONTH FROM date)
     cursor.execute('''
         SELECT name, SUM(distance) as total_distance
         FROM rides 
@@ -262,7 +267,7 @@ def news_page():
     total_rides = cursor.fetchone()[0]
     
     conn.close()
-    current_month_display = datetime.now().strftime('%Y年%m月')
+    current_month_display = datetime.now().EXTRACT(YEAR_MONTH FROM date)
     return render_template('news.html',
                           monthly_champs=monthly_champs,
                           total_riders=total_riders,
@@ -668,7 +673,7 @@ def index():
         cursor = conn.cursor()
         cursor.execute('''
             INSERT INTO rides (name, distance, time, date, is_anonymous, anonymous_id) 
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder}, {placeholder})
         ''',(name, distance, time_val, date, 1 if is_anonymous else 0, anonymous_id))
         conn.commit()
         conn.close()
