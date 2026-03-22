@@ -84,7 +84,7 @@
                     <td>
                         {% if ride[5] %} <!-- is_anonymous -->
                             <span class="anon-badge">匿名</span> {{ ride[6]|e if ride[6] is not none else ''  }} <!-- anonymous_id -->
-                            <br><small style="color: #95a5a6;">(原名: {{ ride[1] }})</small>
+                            <br><small style="color: #95a5a6;">(原名: {{ ride[1]|e  }})</small>
                         {% else %}
                             <strong>{{ ride[1]|e }}</strong> <!-- name -->
                         {% endif %}

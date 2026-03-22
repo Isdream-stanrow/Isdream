@@ -5,7 +5,7 @@
     <!-- 复用主站样式 -->
     <style>
         /* 新闻卡片样式 */
-        .news-container { max-width: 800px; margin: 0 auto; }
+        .news-container { max-width: 800px; margin: 0 auto;padding-bottom: 100px; }
         .news-card {
             background: white;
             border-radius: 12px;
@@ -39,20 +39,25 @@
         }
         /* 侧边栏导航样式 */
         .sidebar-nav {
+    /* === 核心定位：始终固定在底部 === */
             position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border-radius: 12px;
-            padding: 20px 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            z-index: 999;
+            bottom: 0;
+            left: 0;
+            right: 0;
+    /* === 布局：水平排列 === */
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            justify-content: space-around; /* 图标平均分布 */
             align-items: center;
-            gap: 15px;
-        }   
+    /* === 视觉样式 === */
+            background: white;
+            padding: 12px 5px 15px; /* 上、左右、下的内边距。加大底部内边距以适应手机“Home条” */
+            border-radius: 20px 20px 0 0; /* 只有顶部有圆角 */
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1); /* 阴影在顶部，营造“浮起”效果 */
+            z-index: 999; /* 确保在最上层 */
+            gap: 10px; /* 项目之间的间隙 */
+        }
+
 
         .sidebar-nav a {
             display: flex;
@@ -60,70 +65,39 @@
             align-items: center;
             text-decoration: none;
             color: #7f8c8d;
-            padding: 12px 8px;
+            padding: 8px 5px;
             border-radius: 8px;
             transition: all 0.3s ease;
-            width: 100%;
+            flex: 1; /* 每个链接平均分配宽度 */
             text-align: center;
+            min-height: 44px; /* 最小触摸目标尺寸 */
+            justify-content: center;
         }
 
         .sidebar-nav a:hover {
             background-color: #f1f8ff;
             color: #3498db;
-            transform: translateX(3px);
+    /* 移除水平移动效果，更适合底部导航 */
+            transform: translateY(-2px);
         }
+
 
         .sidebar-nav a.active {
             background: linear-gradient(135deg, #3498db, #2980b9);
             color: white;
             box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
         }
-
         .sidebar-nav .icon {
-         font-size: 1.5rem;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            margin-bottom: 3px;
         }
 
         .sidebar-nav .text {
-        font-size: 0.8rem;
-        font-weight: 500;
-        white-space: nowrap;
-        }
-
-        /* 为移动端优化 */
-        @media (max-width: 1100px) {
-            .sidebar-nav {
-            position: fixed;
-                bottom: 0;
-                top: auto;
-                left: 0;
-                right: 0;
-                transform: none;
-                flex-direction: row;
-                justify-content: space-around;
-                padding: 10px 5px;
-                border-radius: 15px 15px 0 0;
-                box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-            }
-    
-            .sidebar-nav a {
-            padding: 8px 5px;
-            }
-    
-            .sidebar-nav .text {
-                font-size: 0.7rem;
-            }
-    
-            .sidebar-nav .icon {
-                font-size: 1.3rem;
-                margin-bottom: 3px;
-            }
-    
-            /* 在移动端，为主内容增加底部内边距，防止被侧边栏遮挡 */
-            .container {
-                padding-bottom: 80px;
-            }
-        }
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }   
+        
     </style>
 </head>
 <body>
@@ -221,6 +195,11 @@
                 <li>✅ 增加新闻页面与侧边栏</li>
                 <li>✅ 加强网站安全</li>
                 <li>✅ 管理员功能增加</li>
+            </ul>
+            <div class="date" style="margin-top: 20px;">v0.0.8 - 2026年3月21日</div>
+            <ul>
+                <li>✅ 手机端界面优化</li>
+                <li>✅ 加强网站安全</li>
             </ul>
         </div>
         

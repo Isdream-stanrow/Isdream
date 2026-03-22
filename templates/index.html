@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>袁庚书院骑行社排行榜</title>
-    <style>
+    <style>    
     /* 全局重置与基础设置 */
     * {
         margin: 0;
@@ -307,7 +307,75 @@
         font-weight: 500;
         border-left: 4px solid #2196f3;
     }
+    .sidebar-nav {
+    /* === 核心定位：始终固定在底部 === */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    /* === 布局：水平排列 === */
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around; /* 图标平均分布 */
+        align-items: center;
+    /* === 视觉样式 === */
+        background: white;
+        padding: 12px 5px 15px; /* 上、左右、下的内边距。加大底部内边距以适应手机“Home条” */
+        border-radius: 20px 20px 0 0; /* 只有顶部有圆角 */
+        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1); /* 阴影在顶部，营造“浮起”效果 */
+        z-index: 999; /* 确保在最上层 */
+        gap: 10px; /* 项目之间的间隙 */
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #7f8c8d;
+        padding: 8px 5px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        flex: 1; /* 每个链接平均分配宽度 */
+        text-align: center;
+        min-height: 44px; /* 最小触摸目标尺寸 */
+        justify-content: center;
+        }
+
+    .sidebar-nav a:hover {
+        background-color: #f1f8ff;
+        color: #3498db;
+    /* 移除水平移动效果，更适合底部导航 */
+        transform: translateY(-2px);
+    }
+
+    .sidebar-nav a.active {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+    }
+
+    .sidebar-nav .icon {
+        font-size: 1.4rem;
+        margin-bottom: 3px;
+    }
+
+    .sidebar-nav .text {
+        font-size: 0.7rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
     
+    /* 为移动端优化 */
+    
+    @media (max-width: 400px) {
+            .sidebar-nav .text {
+                font-size: 0.65rem;
+            }
+            .sidebar-nav .icon {
+                font-size: 1.3rem;
+            }
+        }   
     /* 响应式设计 */
     @media (max-width: 768px) {
         .container {
@@ -346,7 +414,7 @@
         form {
             padding: 15px;
         }
-    }
+    
     
     /* 顶部装饰条 */
     .header-bar {
@@ -405,48 +473,139 @@
         transition: all 0.3s ease;
         background-color: white;
     }
-
+    
 /* 移动端下恢复为垂直布局 */
-    @media (max-width: 768px) {
+    
+    #dataForm {
+        grid-template-columns: 1fr !important; /* 强制单列 */
+        gap: 15px;
+    }
+    .form-group {
+        margin-bottom: 0;
+    }
+    
         #dataForm {
-            grid-template-columns: 1fr !important; /* 强制单列 */
-            gap: 15px;
-        }
-        .form-group {
-            margin-bottom: 0;
-        }
+    padding: 15px !important; /* 减少内边距 */
+    gap: 12px !important; /* 减小网格间隙 */
+    border-radius: 10px; /* 略微减小圆角 */
     }
 
+    /* 2. 优化表单内所有输入框、按钮、文字 */
+    #dataForm input[type="text"],
+    #dataForm input[type="number"],
+    #dataForm input[type="date"],
+    #dataForm input[type="text"]#captcha { /* 确保验证码输入框也被优化 */
+        padding: 10px 12px !important; /* 减小内边距 */
+        font-size: 16px !important; /* 关键：防止iOS页面自动缩放 */
+        border-width: 1px; /* 细化边框 */
+        margin-bottom: 8px; /* 统一底部间距 */
+        min-height: 44px; /* 满足苹果人机指南的最小点击区域 */
+    }
+
+/* 3. 优化标签和提示文字 */
+    .form-group label {
+        font-size: 0.85rem !important;
+        margin-bottom: 4px !important;
+        font-weight: 500; /* 稍微加粗，提高可读性 */
+    }
+    .form-group small {
+        font-size: 0.75rem !important;
+        line-height: 1.2;
+    }
+
+    /* 4. 优化复选框和匿名提交说明的布局 */
+    .form-group label[for^="is_anonymous"] { /* 针对匿名提交的复选框标签 */
+        align-items: flex-start; /* 顶部对齐 */
+        line-height: 1.3;
+    }
+    #is_anonymous {
+        margin-top: 2px; /* 微调复选框对齐 */
+    }
+
+    /* 5. 优化提交按钮 */
+    #dataForm button[type="submit"] {
+        padding: 12px 16px !important;
+        font-size: 1rem !important;
+        border-radius: 8px;
+        margin-top: 5px;
+    }
+    .container {
+        padding: 15px 10px 100px !important; /* 调整内边距，底部为底部导航留出空间 */
+        border-radius: 12px;
+    }
+    h1 {
+        font-size: 1.5rem !important; /* 减小主标题 */
+        margin-bottom: 5px;
+        padding-bottom: 8px;
+    }
+    h2 {
+        font-size: 1.2rem !important; /* 减小次级标题 */
+        margin: 15px 0 10px;
+        padding-left: 8px;
+    }
+    #filterSection {
+        padding: 12px;
+    }
+    #filterSection input[type="date"] {
+        width: calc(50% - 5px) !important; /* 让两个日期输入框并排 */
+        display: inline-block;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    #filterSection input[type="date"]:first-of-type {
+        margin-right: 10px;
+    }
+    #filterSection button {
+        width: auto; /* 按钮恢复自适应宽度 */
+        min-width: 60px;
+        padding: 8px 12px;
+        margin-right: 8px;
+        margin-bottom: 10px;
+    }
+    /* 搜索框单独一行 */
+    #filterSection > div { /* 指向包含搜索框的div */
+        margin-top: 5px;
+    }
+    #searchName {
+        width: calc(100% - 80px) !important; /* 搜索框占据主要宽度 */
+    }
+    
+    button:active, a:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+    /* 优化加载中的提示 */
+    .loading, .empty-state {
+        padding: 30px 15px;
+        font-size: 0.95rem;
+    }
+    
     /* 侧边栏导航样式 */
         .sidebar-nav {
+    /* 核心：覆盖为底部导航定位 */
             position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border-radius: 12px;
-            padding: 20px 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            bottom: 0;
+            top: auto; /* 清除桌面端的 top: 50% */
+            left: 0;
+            right: 0;
+            transform: none; /* 清除桌面端的 transform: translateY(-50%) */
+    
+    /* 布局：从列变为行 */
+            flex-direction: row;
+            justify-content: space-around;
+    
+    /* 视觉调整 */
+            border-radius: 20px 20px 0 0 !important; /* 更大的圆角 */
+            padding: 12px 5px 15px !important; /* 调整内边距，特别是底部，为手机Home条留空间 */
+            box-shadow: 0 -8px 25px rgba(0,0,0,0.1) !important;
+    
+    /* 确保在手机端层级正确 */
             z-index: 999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
         }
 
         .sidebar-nav a {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: #7f8c8d;
-            padding: 12px 8px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-align: center;
-        }   
-
+            padding: 8px 5px 6px !important; /* 调整链接内边距 */
+        } 
         .sidebar-nav a:hover {
             background-color: #f1f8ff;
             color: #3498db;
@@ -460,50 +619,36 @@
         }
 
         .sidebar-nav .icon {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+            font-size: 1.4rem;
+            margin-bottom: 3px;
         }
 
         .sidebar-nav .text {
-            font-size: 0.8rem;
-            font-weight: 500;
+            font-size: 0.7rem;
+            font-weight: 600;
             white-space: nowrap;
         }
-
-        /* 为移动端优化 */
-        @media (max-width: 1100px) {
-            .sidebar-nav {
-                position: fixed;
-                bottom: 0;
-                top: auto;
-                left: 0;
-                right: 0;
-                transform: none;
-                flex-direction: row;
-                justify-content: space-around;
-                padding: 10px 5px;
-                border-radius: 15px 15px 0 0;
-                box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
         }
-    
-            .sidebar-nav a {
-                padding: 8px 5px;
-            }
-    
-            .sidebar-nav .text {
-                font-size: 0.7rem;
-            }
-    
-            .sidebar-nav .icon {
-                font-size: 1.3rem;
-                margin-bottom: 3px;
-            }
-    
-        /* 在移动端，为主内容增加底部内边距，防止被侧边栏遮挡 */
+        @media (min-width: 769px) and (max-width: 1100px) {
             .container {
-                padding-bottom: 80px;
+                width: 95%; /* 让容器稍微收缩，留出边距 */
+                max-width: none; /* 移除最大宽度限制 */
+                padding: 20px; /* 减少内边距 */
             }
-    }
+    
+            table {
+                width: 100%;
+                table-layout: fixed; /* 固定表格布局，列宽更均匀 */
+            }
+    
+    /* 调整列宽，让表格更紧凑 */
+            table th:nth-child(1), table td:nth-child(1) { width: 10%; } /* 排名 */
+            table th:nth-child(2), table td:nth-child(2) { width: 20%; } /* 姓名 */
+            table th:nth-child(3), table td:nth-child(3) { width: 15%; } /* 距离 */
+            table th:nth-child(4), table td:nth-child(4) { width: 15%; } /* 时间 */
+            table th:nth-child(5), table td:nth-child(5) { width: 20%; } /* 均速 */
+            table th:nth-child(6), table td:nth-child(6) { width: 20%; } /* 日期 */
+        }
 </style>
 </head>
 <body>
@@ -519,7 +664,7 @@
     </nav>
     <div class="container">
     
-    <h1>袁庚书院骑行社官方网站version0.0.7</h1>
+    <h1>袁庚书院骑行社官方网站version0.0.8</h1>
     
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
     <h2 style="margin: 0; border: none; padding: 0; color: #2c3e50;">填写新记录</h2>
@@ -585,7 +730,7 @@
         <button onclick="clearSearch()" style="padding: 8px 12px; background: #95a5a6; color: white; border: none; border-radius: 6px;">清空</button>
     </div>
 </div>
-    <h2>实时排行榜</h2>
+    <h2>实时排行榜(点击排行榜中的姓名可以查看详细个人统计喵)</h2>
     <select id="sortOption">
     <option value="distance">按距离排序</option>
     <option value="speed">按均速排序</option>
@@ -607,11 +752,23 @@
         </tbody>
     </table>
 </div>
-<div style="text-align: center; margin: 20px 0; color: #7f8c8d;">
-    <p>点击排行榜中的姓名可以查看详细个人统计喵</p>
-</div>
 <div style="text-align: center; margin-top: 40px; color: #bdc3c7; font-size: 0.8rem;">
-    <a href="/admin/login" style="color: inherit; text-decoration: none;">管理</a>
+    <a href="/admin/login" id="admin-corner-link" style="
+    position: fixed; /* 固定定位 */
+    top: 20px; /* 距离顶部 20 像素 */
+    right: 20px; /* 距离右侧 20 像素 */
+    z-index: 1001; /* 确保浮于大部分内容之上 */
+    color: #bdc3c7; /* 保持原有浅灰色 */
+    font-size: 0.8rem; /* 保持小字体 */
+    text-decoration: none; /* 去除下划线 */
+    padding: 5px 10px; /* 增加一点内边距，方便点击 */
+    background-color: rgba(255, 255, 255, 0.7); /* 半透明白色背景，提高在复杂背景上的可读性 */
+    border-radius: 3px; /* 轻微圆角 */
+    transition: all 0.3s ease; /* 添加过渡效果 */
+    backdrop-filter: blur(5px); /* 毛玻璃背景效果（可选，增强质感） */
+">
+    管理
+</a>
 </div>
 <script>
     function refreshCaptcha() {
@@ -622,8 +779,11 @@
                 document.getElementById('captcha').placeholder = data.question;
             }
         });
-    }       
+    }     
+      
     let searchTimer = null;
+    let isUpdatingRanking = false;
+    
     function debouncedSearch() {
         clearTimeout(searchTimer);
         const tbody = document.getElementById('ranking');
@@ -640,7 +800,7 @@
         document.getElementById('searchName').value = '';
         fetchRanking(document.getElementById('sortOption').value);
     }
-    let isUpdatingRanking = false
+    
     // 每5秒刷新排名
 
     function escapeHtml(text) {
@@ -712,13 +872,15 @@
                 const tr = document.createElement('tr');
                 const escapedName = escapeHtml(row.name);
                 const escapedDate = escapeHtml(row.date);
+                
+                const headers = ['排名', '姓名', '距离 (km)', '时间 (min)', '均速 (km/h)', '日期'];
                 tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><a href="/user/${encodeURIComponent(row.name)}" style="color: #3498db; text-decoration: none; font-weight: 600;">${escapeHtml(row.name)}</a></td>
-                    <td>${row.distance.toFixed(2)}</td>
-                    <td>${row.time.toFixed(1)}</td>
-                    <td>${row.speed ? row.speed.toFixed(4) : '-'}</td>
-                    <td>${row.date}</td>
+                    <td data-label="${headers[0]}">${index + 1}</td>
+                    <td data-label="${headers[1]}"><a href="/user/${encodeURIComponent(row.name)}" style="color: #3498db; text-decoration: none; font-weight: 600;">${escapedName}</a></td>
+                    <td data-label="${headers[2]}">${row.distance.toFixed(2)}</td>
+                    <td data-label="${headers[3]}">${row.time.toFixed(1)}</td>
+                    <td data-label="${headers[4]}">${row.speed ? row.speed.toFixed(4) : '-'}</td>
+                    <td data-label="${headers[5]}">${escapedDate}</td>
                 `;
                 tr.classList.add('tr-fade-in');
                 tbody.appendChild(tr);
@@ -920,12 +1082,47 @@
     } else {
         console.error('未找到表单元素，请检查表单ID是否为 dataForm');
     }
-    
+    // 在 window.onload 函数内添加
+        //document.querySelectorAll('#dataForm input').forEach(input => {
+           // input.addEventListener('focus', function() {
+                // 简单延迟，等待键盘弹出
+                //setTimeout(() => {
+                   // this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                //}, 300);
+            //});
+        //});
     // 定时刷新（每5秒）
     setInterval(() => {
         fetchRanking(document.getElementById('sortOption').value);
     }, 30000);
 };
+</script>
+    <button id="backToTop" style="
+        display: none;
+        position: fixed;
+        bottom: 100px; /* 在底部导航栏上方 */
+        right: 15px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #3498db;
+        color: white;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+        z-index: 1000;
+    ">↑</button>
+
+<script>
+// 返回顶部功能
+    const backToTopBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        backToTopBtn.style.display = window.scrollY > 300 ? 'block' : 'none';
+    });
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
 </script>
 </body>
 </html>
