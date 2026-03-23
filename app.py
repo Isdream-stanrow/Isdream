@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify, session, redirect, s
 from datetime import datetime
 from collections import defaultdict
 import time as time_module
-#import sqlite3
+import sqlite3
 import hashlib
 import os
 import secrets 
@@ -11,8 +11,6 @@ import html
 import re
 import shutil
 import tempfile
-import psycopg2
-from urllib.parse import urlparse
 
 ip_submit_count = defaultdict(list)
 IP_LIMIT = 5  # 每个IP每分钟最多5次提交
@@ -24,39 +22,7 @@ attack_log = []
 ADMIN_PASSWORD = "ZUISHUAI6"
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
-#DATABASE = 'database.db'
-
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    # 解析Render的PostgreSQL URL
-    result = urlparse(DATABASE_URL)
-    DB_CONFIG = {
-        'dbname': result.path[1:],
-        'user': result.username,
-        'password': result.password,
-        'host': result.hostname,
-        'port': result.port,
-    }
-    USING_POSTGRESQL = True
-else:
-    # 本地开发时，可回退到SQLite（便于测试）
-    USING_POSTGRESQL = False
-    import sqlite3  # 本地开发时才导入
-
-def get_db_connection():
-    """获取数据库连接(自动适配PostgreSQL或SQLite)"""
-    if USING_POSTGRESQL:
-        conn = psycopg2.connect(**DB_CONFIG)
-        # PostgreSQL需要设置自动提交，或手动管理事务
-        conn.autocommit = False
-    else:
-        # 本地开发回退到SQLite
-        conn = sqlite3.connect('database.db')
-    return conn
-
-def get_db_cursor(conn):
-    """获取数据库游标"""
-    return conn.cursor()
+DATABASE = 'database.db'
 
 def sanitize_input(input_string, max_length=50):
     """
@@ -134,24 +100,8 @@ def check_ip_limit(ip):
 
 # 初始化数据库
 def init_db():
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
-    
-    if USING_POSTGRESQL:
-        # PostgreSQL 建表语句 (注意语法差异)
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS rides (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                distance DECIMAL(10,2) NOT NULL, 
-                time DECIMAL(10,1) NOT NULL,      
-                date DATE NOT NULL DEFAULT CURRENT_DATE,
-                is_anonymous BOOLEAN DEFAULT FALSE, 
-                anonymous_id TEXT      
-            )
-        ''')
-    else:
-        # 保留原有的SQLite建表语句，用于本地开发
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS rides (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -163,19 +113,16 @@ def init_db():
                 anonymous_id TEXT      
             )
         ''')
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
 
 with app.app_context():
     init_db()
 # 获取排行榜数据（按距离降序）
 def get_ranking():
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
-    if USING_POSTGRESQL:
-        cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
-    else:
-        cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('SELECT name, distance, time, date FROM rides ORDER BY distance DESC')
     results = cursor.fetchall()
     conn.close()
     return results
@@ -230,8 +177,8 @@ def batch_delete():
     if not isinstance(ids, list) or len(ids) == 0:
         return jsonify({"success": False, "error": "ID列表格式错误"}), 400
     
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
     deleted_count = 0
     
     try:
@@ -255,30 +202,19 @@ def batch_delete():
 @app.route('/news')
 def news_page():
     """新闻公告页面"""
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
     
     # 1. 获取本月骑行冠军
     current_month = datetime.now().strftime('%Y-%m')
-    if USING_POSTGRESQL:
-        cursor.execute('''
-            SELECT name, SUM(distance) as total_distance
-            FROM rides 
-            WHERE to_char(date, 'YYYY-MM') = %s AND time > 0
-            GROUP BY name 
-            ORDER BY total_distance DESC
-            LIMIT 3
-        ''', (current_month,))
-    else:
-        cursor.execute('''
-            SELECT name, SUM(distance) as total_distance
-            FROM rides 
-            WHERE strftime('%Y-%m', date) = ? AND time > 0
-            GROUP BY name 
-            ORDER BY total_distance DESC
-            LIMIT 3
-        ''', (current_month,))
-    
+    cursor.execute('''
+        SELECT name, SUM(distance) as total_distance
+        FROM rides 
+        WHERE strftime('%Y-%m', date) = ? AND time > 0
+        GROUP BY name 
+        ORDER BY total_distance DESC
+        LIMIT 3
+    ''', (current_month,))
     monthly_champs = cursor.fetchall()
     
     # 2. 获取统计数据
@@ -310,9 +246,6 @@ def download_database():
         return "未授权访问", 403
     
      # 额外的安全验证：检查Referer，确保请求来自管理页面
-    if USING_POSTGRESQL:
-        return "PostgreSQL数据库不支持直接下载，请使用备份功能", 400
-    
     referer = request.headers.get('Referer')
     if referer and '/admin' not in referer:
         # 可以记录这个可疑请求
@@ -354,9 +287,6 @@ def restore_database():
     """恢复数据库（仅管理员可访问）"""
     if not session.get('is_admin'):
         return "未授权访问", 403
-    
-    if USING_POSTGRESQL:
-        return "PostgreSQL数据库不支持通过网页恢复", 400
     
     if request.method == 'POST':
         # 检查是否上传了文件
@@ -416,9 +346,6 @@ def list_backups():
     if not session.get('is_admin'):
         return "未授权访问", 403
 
-    if USING_POSTGRESQL:
-        return "PostgreSQL数据库不支持文件备份列表", 400
-    
     backups = []
     for file in os.listdir('.'):
         if file.startswith('cycling.db.backup.') or file.endswith('_backup.db'):
@@ -444,8 +371,9 @@ def admin_panel():
         return redirect('/admin/login')
     
     # 2. 获取所有数据
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
+    conn = sqlite3.connect(DATABASE)
+    # 按日期倒序排列，方便查看最新数据
+    cursor = conn.cursor()
     cursor.execute('''
         SELECT id, name, distance, time, date, is_anonymous, anonymous_id 
         FROM rides 
@@ -468,13 +396,10 @@ def admin_delete(ride_id):
         return jsonify({"success": False, "error": "未登录或会话已过期。"}), 403
     
     # 2. 执行删除
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
     try:
-        if USING_POSTGRESQL:
-            cursor.execute('DELETE FROM rides WHERE id = %s', (ride_id,))
-        else:
-            cursor.execute('DELETE FROM rides WHERE id = ?', (ride_id,))
+        cursor.execute('DELETE FROM rides WHERE id = ?', (ride_id,))
         conn.commit()
         deleted = cursor.rowcount > 0  # 检查是否成功删除了行
     except Exception as e:
@@ -522,27 +447,17 @@ def admin_logout():
 @app.route('/user/<identifier>')
 def user_stats(identifier):
     """个人骑行统计页面"""
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
     
     # 1. 获取用户所有骑行记录
-    if USING_POSTGRESQL:
-        cursor.execute('''
-            SELECT date, distance, time, (60 * distance / time) as speed, 
-                is_anonymous, anonymous_id, name
-            FROM rides 
-            WHERE (name = %s OR anonymous_id = %s) AND time > 0
-            ORDER BY date DESC
-        ''', (identifier, identifier))
-    else:
-        cursor.execute('''
-            SELECT date, distance, time, (60 * distance / time) as speed, 
-                is_anonymous, anonymous_id, name
-            FROM rides 
-            WHERE (name = ? OR anonymous_id = ?) AND time > 0
-            ORDER BY date DESC
-        ''', (identifier, identifier))
-    
+    cursor.execute('''
+        SELECT date, distance, time, (60 * distance / time) as speed, 
+            is_anonymous, anonymous_id, name
+        FROM rides 
+        WHERE (name = ? OR anonymous_id = ?) AND time > 0
+        ORDER BY date DESC
+    ''', (identifier, identifier))
     records = cursor.fetchall()
     
     if not records:
@@ -715,18 +630,14 @@ def index():
             anonymous_id = None
         # 处理上传数据
 
-        conn = get_db_connection()
+        conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        try:
-            # 注意：PostgreSQL使用 %s 作为占位符，而不是 ?
-            cursor.execute('INSERT INTO rides ... VALUES (%s, %s, %s, %s, %s, %s)', params)
-            conn.commit()
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            conn.close()
-
+        cursor.execute('''
+            INSERT INTO rides (name, distance, time, date, is_anonymous, anonymous_id) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''',(name, distance, time_val, date, 1 if is_anonymous else 0, anonymous_id))
+        conn.commit()
+        conn.close()
         return jsonify({
             "success": True,
             "message": "数据提交成功！"+ ("（已匿名）" if is_anonymous else "")
@@ -748,25 +659,19 @@ def get_ranking_json():
     start_date = request.args.get('start_date', '')
     end_date = request.args.get('end_date', '')
     search_name = request.args.get('search_name', '')
-    conn = get_db_connection()
-    cursor = get_db_cursor(conn)
-    if USING_POSTGRESQL:
-        base_query = '''
-            SELECT name, distance, time, date, 
-                   (60 * distance / NULLIF(time, 0)) AS speed,
-                   is_anonymous, anonymous_id
-            FROM rides 
-            WHERE time > 0
-        '''
-    else:
-        base_query = '''
-            SELECT name, distance, time, date, 
-                   (60 * distance / time) AS speed,
-                   is_anonymous, anonymous_id
-            FROM rides 
-            WHERE time > 0
-        '''
-    
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    base_query = '''
+        SELECT name, 
+        distance,
+        time, 
+        date, 
+        (60*distance / time) AS speed,
+        is_anonymous,
+        anonymous_id
+    FROM rides 
+    WHERE time > 0
+    '''
     conditions = []
     params = []
     if start_date:
