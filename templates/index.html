@@ -2,462 +2,219 @@
 <html>
 <head><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>袁庚书院骑行社排行榜</title>
-    <style>    
-    /* 全局重置与基础设置 */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    <style>
+    :root {
+        --primary: #3498db;
+        --primary-dark: #2980b9;
+        --secondary: #2ecc71;
+        --secondary-dark: #27ae60;
+        --accent: #e74c3c;
+        --dark: #2c3e50;
+        --gray: #7f8c8d;
+        --light-bg: #f0f4f8;
+        --shadow: 0 8px 30px rgba(0,0,0,0.08);
+        --shadow-hover: 0 12px 40px rgba(0,0,0,0.12);
+        --radius: 16px;
+        --radius-sm: 10px;
     }
-    #ranking {
-        overflow: hidden;
-    }   
-    @keyframes fadeOut {
-        from { opacity: 1; }
-        to { opacity: 0; }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    #ranking { overflow: hidden; }
+
+    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    .tr-fade-out { animation: fadeOut 0.3s ease-out forwards; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .tr-fade-in { animation: fadeIn 0.5s ease-out; }
+
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+    @keyframes logoGlow { 0%, 100% { box-shadow: 0 0 20px rgba(52,152,219,0.3); } 50% { box-shadow: 0 0 35px rgba(46,204,113,0.5); } }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
     }
-    .tr-fade-out {
-        animation: fadeOut 0.3s ease-out forwards;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .tr-fade-in {
-        animation: fadeIn 0.5s ease-out;
-    }
+
     body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        background: linear-gradient(135deg, #e8edf5 0%, #d5dce6 50%, #c8d4e3 100%);
         color: #333;
         line-height: 1.6;
         padding: 20px;
         min-height: 100vh;
     }
-    
+
     .container {
         max-width: 1200px;
         margin: 0 auto;
-        background-color: white;
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        padding: 30px;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        overflow: visible;
+        padding: 35px;
+        border: 1px solid rgba(255,255,255,0.6);
     }
-    .search-highlight {
-        background-color: #fff9c4;  /* 黄色高亮 */
-        font-weight: bold;
-        padding: 2px 0;
+
+    /* ===== Logo ===== */
+    .brand-logo {
+        position: fixed;
+        top: 20px;
+        right: 24px;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,255,255,0.75));
+        backdrop-filter: blur(12px);
+        padding: 8px 18px 8px 14px;
+        border-radius: 50px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255,255,255,0.8);
+        animation: logoGlow 3s ease-in-out infinite;
+        transition: all 0.3s ease;
+        cursor: default;
+        text-decoration: none;
     }
-    
-    /* 标题样式 */
-    h1 {
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 10px;
-        font-size: 2.5rem;
+    .brand-logo:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 8px 30px rgba(52,152,219,0.25);
+    }
+    .brand-logo .logo-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #3498db, #2ecc71);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    .brand-logo .logo-text {
+        font-size: 0.95rem;
         font-weight: 700;
-        background: linear-gradient(90deg, #3498db, #2ecc71);
-        background-clip: text;
+        background: linear-gradient(90deg, #2c3e50, #3498db);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        padding-bottom: 10px;
-        border-bottom: 3px solid #f1f2f6;
-    }
-    
-    h2 {
-        color: #34495e;
-        margin: 25px 0 15px;
-        padding-left: 10px;
-        border-left: 4px solid #3498db;
-        font-weight: 600;
-    }
-    
-    /* 数据上传表单美化 */
-    form {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 25px;
-        border-radius: 12px;
-        margin: 20px 0;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    form label {
-        display: block;
-        margin-bottom: 8px;
-        color: #2c3e50;
-        font-weight: 600;
-        font-size: 0.95rem;
-    }
-    
-    form input[type="text"],
-    form input[type="number"],
-    form input[type="date"],
-    form input[type="date"] {
-        width: 100%;
-        padding: 12px 15px;
-        margin-bottom: 20px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background-color: white;
-    }
-    
-    form input:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        outline: none;
-    }
-    
-    form button[type="submit"] {
-    background: linear-gradient(90deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    display: block;
-    width: 100%;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: hidden;
-    outline: none;
-    }
-    
-    form button[type="submit"]:hover:not(:disabled) {
-    background: linear-gradient(90deg, #2980b9, #3498db);
-    transform: translateY(-2px);
-    box-shadow: 0 7px 14px rgba(52, 152, 219, 0.3);
-    }
-    form button[type="submit"]:active:not(:disabled) {
-    transform: translateY(0);
-    transition: transform 0.1s;
-    }
-    form button[type="submit"]:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-    }
-    form button.success-state {
-    background: #2ecc71 !important;
-    animation: pulse 0.5s ease-in-out;
-    }
-    @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-    }
-    /* 筛选区域美化 */
-    #filterSection {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        padding: 20px;
-        border-radius: 12px;
-        margin: 25px 0;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    #filterSection label {
-        display: inline-block;
-        margin-right: 10px;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-    
-    #filterSection input[type="date"] {
-        padding: 10px 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 0.95rem;
-        margin-right: 15px;
-        width: 180px;
-    }
-    
-    #filterSection button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-right: 10px;
-    }
-    
-    #filterSection button:nth-of-type(1) {
-        background: linear-gradient(90deg, #2ecc71, #27ae60);
-        color: white;
-    }
-    
-    #filterSection button:nth-of-type(2) {
-        background: linear-gradient(90deg, #e74c3c, #c0392b);
-        color: white;
-    }
-    
-    #filterSection button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* 排序选择器美化 */
-    #sortOption {
-        padding: 10px 15px;
-        border: 2px solid #3498db;
-        border-radius: 8px;
-        background-color: white;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #2c3e50;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-bottom: 20px;
-        width: 200px;
-    }
-    
-    #sortOption:focus {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
-    
-    /* 表格美化 */
-    table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-top: 20px;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    }
-    
-    thead {
-        background: linear-gradient(90deg, #2c3e50, #34495e);
-    }
-    
-    th {
-        padding: 18px 15px;
-        text-align: center;
-        color: white;
-        font-weight: 600;
-        font-size: 1rem;
-        text-transform: uppercase;
+        background-clip: text;
         letter-spacing: 0.5px;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
     }
-    
-    th:last-child {
-        border-right: none;
-    }
-    
-    tbody tr {
-        transition: all 0.3s ease;
-    }
-    
-    tbody tr:nth-child(even) {
-        background-color: #f8f9fa;
-    }
-    
-    tbody tr:nth-child(odd) {
-        background-color: white;
-    }
-    
-    tbody tr:hover {
-        background-color: #e3f2fd;
-        transform: scale(1.005);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    }
-    
-    td {
-        padding: 16px 15px;
-        text-align: center;
-        border-bottom: 1px solid #f1f2f6;
-        font-size: 0.95rem;
-    }
-    
-    /* 排名数字特殊样式 */
-    td:first-child {
-        font-weight: 700;
-        color: #3498db;
-        font-size: 1.1rem;
-    }
-    
-    /* 数据高亮 */
-    td:nth-child(3) { /* 距离列 */
-        color: #e74c3c;
-        font-weight: 600;
-    }
-    
-    td:nth-child(5) { /* 均速列 */
-        color: #27ae60;
-        font-weight: 600;
-    }
-    
-    /* 筛选信息显示 */
-    #filterInfo {
-        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-        padding: 12px 20px;
-        border-radius: 8px;
-        margin: 15px 0;
-        color: #1565c0;
+    .brand-logo .logo-tag {
+        font-size: 0.55rem;
+        color: var(--gray);
+        -webkit-text-fill-color: var(--gray);
+        background: none;
         font-weight: 500;
-        border-left: 4px solid #2196f3;
+        letter-spacing: 0.3px;
     }
-    .sidebar-nav {
-    /* === 核心定位：始终固定在底部 === */
+
+    .admin-mini-link {
         position: fixed;
+        top: 72px;
+        right: 28px;
+        z-index: 1001;
+        color: rgba(127, 140, 141, 0.5);
+        font-size: 0.7rem;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    .admin-mini-link:hover { color: var(--primary); }
+
+    .search-highlight { background-color: #fff9c4; font-weight: bold; padding: 2px 0; }
+
+    /* ===== Header ===== */
+    .page-header {
+        position: relative;
+        padding: 30px 20px 25px;
+        margin: -35px -35px 30px;
+        background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 40%, #34495e 100%);
+        border-radius: 24px 24px 0 0;
+        overflow: hidden;
+        text-align: center;
+    }
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 50%, rgba(52,152,219,0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 50%, rgba(46,204,113,0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    .page-header h1 {
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        position: relative;
+        z-index: 1;
+    }
+    .page-header .subtitle {
+        color: rgba(255,255,255,0.6);
+        font-size: 0.85rem;
+        margin-top: 6px;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 2px;
+    }
+    .page-header .header-decoration {
+        position: absolute;
         bottom: 0;
         left: 0;
         right: 0;
-    /* === 布局：水平排列 === */
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around; /* 图标平均分布 */
-        align-items: center;
-    /* === 视觉样式 === */
-        background: white;
-        padding: 12px 5px 15px; /* 上、左右、下的内边距。加大底部内边距以适应手机“Home条” */
-        border-radius: 20px 20px 0 0; /* 只有顶部有圆角 */
-        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1); /* 阴影在顶部，营造“浮起”效果 */
-        z-index: 999; /* 确保在最上层 */
-        gap: 10px; /* 项目之间的间隙 */
+        height: 4px;
+        background: linear-gradient(90deg, #3498db, #2ecc71, #e74c3c, #f39c12, #3498db);
+        background-size: 200% 100%;
+        animation: shimmer 3s linear infinite;
     }
+    @keyframes shimmer { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
 
-    .sidebar-nav a {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-decoration: none;
-        color: #7f8c8d;
-        padding: 8px 5px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        flex: 1; /* 每个链接平均分配宽度 */
-        text-align: center;
-        min-height: 44px; /* 最小触摸目标尺寸 */
-        justify-content: center;
-        }
-
-    .sidebar-nav a:hover {
-        background-color: #f1f8ff;
-        color: #3498db;
-    /* 移除水平移动效果，更适合底部导航 */
-        transform: translateY(-2px);
-    }
-
-    .sidebar-nav a.active {
-        background: linear-gradient(135deg, #3498db, #2980b9);
-        color: white;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-    }
-
-    .sidebar-nav .icon {
-        font-size: 1.4rem;
-        margin-bottom: 3px;
-    }
-
-    .sidebar-nav .text {
-        font-size: 0.7rem;
+    h2 {
+        color: var(--dark);
+        margin: 28px 0 16px;
+        padding-left: 14px;
+        border-left: 4px solid var(--primary);
         font-weight: 600;
-        white-space: nowrap;
+        font-size: 1.2rem;
+        position: relative;
     }
-    
-    /* 为移动端优化 */
-    
-    @media (max-width: 400px) {
-            .sidebar-nav .text {
-                font-size: 0.65rem;
-            }
-            .sidebar-nav .icon {
-                font-size: 1.3rem;
-            }
-        }   
-    /* 响应式设计 */
-    @media (max-width: 768px) {
-        .container {
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-        }
-        
-        #filterSection {
-            padding: 15px;
-        }
-        
-        #filterSection input[type="date"] {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        
-        #filterSection button {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        
-        table {
-            display: block;
-            overflow-x: auto;
-        }
-        
-        th, td {
-            padding: 12px 8px;
-            font-size: 0.9rem;
-        }
-        
-        form {
-            padding: 15px;
-        }
-    
-    
-    /* 顶部装饰条 */
-    .header-bar {
-        height: 5px;
-        background: linear-gradient(90deg, #3498db, #2ecc71, #e74c3c, #f39c12);
-        border-radius: 5px 5px 0 0;
-        margin-bottom: 20px;
+    h2::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 14px;
+        width: 40px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        border-radius: 2px;
     }
-    
-    /* 加载动画 */
-    .loading {
-        text-align: center;
-        padding: 20px;
-        color: #7f8c8d;
-        font-style: italic;
-    }
-    
-    /* 空状态提示 */
-    .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #95a5a6;
-        font-size: 1.1rem;
-    }
+
+    /* ===== Form Section ===== */
     #dataForm {
-        /* 上面行内样式已定义网格，这里补充细节 */
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 25px;
-        border-radius: 12px;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        align-items: end;
+        background: linear-gradient(135deg, #f8faff 0%, #eef2f7 100%);
+        padding: 28px;
+        border-radius: var(--radius);
+        border: 1px solid rgba(255,255,255,0.8);
+        box-shadow: var(--shadow);
         transition: all 0.3s ease;
         margin-bottom: 20px;
     }
+    #dataForm:hover { box-shadow: var(--shadow-hover); }
 
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
+    .form-group { display: flex; flex-direction: column; }
 
     .form-group label {
         margin-bottom: 8px;
-        color: #2c3e50;
+        color: var(--dark);
         font-weight: 600;
         font-size: 0.9rem;
     }
@@ -465,310 +222,403 @@
     #dataForm input[type="text"],
     #dataForm input[type="number"],
     #dataForm input[type="date"] {
-        width: 100%; /* 在网格单元格内自适应 */
-        padding: 12px 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e8ecf1;
+        border-radius: var(--radius-sm);
         font-size: 1rem;
         transition: all 0.3s ease;
         background-color: white;
+        outline: none;
     }
-    
-/* 移动端下恢复为垂直布局 */
-    
-    #dataForm {
-        grid-template-columns: 1fr !important; /* 强制单列 */
-        gap: 15px;
-    }
-    .form-group {
-        margin-bottom: 0;
-    }
-    
-        #dataForm {
-    padding: 15px !important; /* 减少内边距 */
-    gap: 12px !important; /* 减小网格间隙 */
-    border-radius: 10px; /* 略微减小圆角 */
+    #dataForm input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(52,152,219,0.12);
     }
 
-    /* 2. 优化表单内所有输入框、按钮、文字 */
-    #dataForm input[type="text"],
-    #dataForm input[type="number"],
-    #dataForm input[type="date"],
-    #dataForm input[type="text"]#captcha { /* 确保验证码输入框也被优化 */
-        padding: 10px 12px !important; /* 减小内边距 */
-        font-size: 16px !important; /* 关键：防止iOS页面自动缩放 */
-        border-width: 1px; /* 细化边框 */
-        margin-bottom: 8px; /* 统一底部间距 */
-        min-height: 44px; /* 满足苹果人机指南的最小点击区域 */
-    }
-
-/* 3. 优化标签和提示文字 */
-    .form-group label {
-        font-size: 0.85rem !important;
-        margin-bottom: 4px !important;
-        font-weight: 500; /* 稍微加粗，提高可读性 */
-    }
-    .form-group small {
-        font-size: 0.75rem !important;
-        line-height: 1.2;
-    }
-
-    /* 4. 优化复选框和匿名提交说明的布局 */
-    .form-group label[for^="is_anonymous"] { /* 针对匿名提交的复选框标签 */
-        align-items: flex-start; /* 顶部对齐 */
-        line-height: 1.3;
-    }
-    #is_anonymous {
-        margin-top: 2px; /* 微调复选框对齐 */
-    }
-
-    /* 5. 优化提交按钮 */
     #dataForm button[type="submit"] {
-        padding: 12px 16px !important;
-        font-size: 1rem !important;
-        border-radius: 8px;
-        margin-top: 5px;
+        background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: var(--radius-sm);
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: block;
+        width: 100%;
+        letter-spacing: 0.5px;
+        position: relative;
+        overflow: hidden;
     }
-    .container {
-        padding: 15px 10px 100px !important; /* 调整内边距，底部为底部导航留出空间 */
-        border-radius: 12px;
+    #dataForm button[type="submit"]:hover:not(:disabled) {
+        background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52,152,219,0.35);
     }
-    h1 {
-        font-size: 1.5rem !important; /* 减小主标题 */
-        margin-bottom: 5px;
-        padding-bottom: 8px;
-    }
-    h2 {
-        font-size: 1.2rem !important; /* 减小次级标题 */
-        margin: 15px 0 10px;
-        padding-left: 8px;
-    }
+    #dataForm button[type="submit"]:active:not(:disabled) { transform: translateY(0); }
+    #dataForm button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    #dataForm button.success-state { background: var(--secondary) !important; animation: pulse 0.5s ease-in-out; }
+
+    /* ===== Filter Section ===== */
     #filterSection {
-        padding: 12px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+        padding: 22px 24px;
+        border-radius: var(--radius);
+        margin: 20px 0;
+        border: 1px solid rgba(255,255,255,0.8);
+        box-shadow: var(--shadow);
+        transition: box-shadow 0.3s ease;
     }
+    #filterSection:hover { box-shadow: var(--shadow-hover); }
+
+    #filterSection label { display: inline-block; margin-right: 10px; font-weight: 600; color: var(--dark); }
     #filterSection input[type="date"] {
-        width: calc(50% - 5px) !important; /* 让两个日期输入框并排 */
-        display: inline-block;
-        margin-right: 0;
-        margin-bottom: 10px;
+        padding: 10px 14px;
+        border: 2px solid #e8ecf1;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        margin-right: 12px;
+        width: 170px;
+        transition: border-color 0.3s ease;
+        outline: none;
     }
-    #filterSection input[type="date"]:first-of-type {
-        margin-right: 10px;
-    }
+    #filterSection input[type="date"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52,152,219,0.1); }
+
     #filterSection button {
-        width: auto; /* 按钮恢复自适应宽度 */
-        min-width: 60px;
-        padding: 8px 12px;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
         margin-right: 8px;
-        margin-bottom: 10px;
     }
-    /* 搜索框单独一行 */
-    #filterSection > div { /* 指向包含搜索框的div */
-        margin-top: 5px;
+    #filterSection button:nth-of-type(1) { background: linear-gradient(90deg, var(--secondary), var(--secondary-dark)); color: white; }
+    #filterSection button:nth-of-type(2) { background: linear-gradient(90deg, #e74c3c, #c0392b); color: white; }
+    #filterSection button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.12); }
+    #filterSection button:active { transform: translateY(0); }
+
+    /* ===== Sort ===== */
+    #sortOption {
+        padding: 10px 18px;
+        border: 2px solid #e0e7ef;
+        border-radius: var(--radius-sm);
+        background-color: white;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: var(--dark);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+        width: auto;
+        min-width: 160px;
     }
-    #searchName {
-        width: calc(100% - 80px) !important; /* 搜索框占据主要宽度 */
+    #sortOption:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(52,152,219,0.12); }
+
+    /* ===== Table ===== */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 20px;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
     }
-    
-    button:active, a:active {
-        opacity: 0.7;
-        transform: scale(0.98);
+    thead { background: linear-gradient(90deg, #1a2a3a, #2c3e50); }
+    th {
+        padding: 16px 15px;
+        text-align: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        border-right: 1px solid rgba(255,255,255,0.06);
     }
-    /* 优化加载中的提示 */
-    .loading, .empty-state {
-        padding: 30px 15px;
+    th:last-child { border-right: none; }
+
+    tbody tr { transition: all 0.25s ease; cursor: default; }
+    tbody tr:nth-child(even) { background-color: #f8faff; }
+    tbody tr:nth-child(odd) { background-color: white; }
+    tbody tr:hover {
+        background: linear-gradient(90deg, #eef6ff, #e3f2fd);
+        transform: scale(1.003);
+    }
+    /* 前三名特殊样式 */
+    tbody tr:nth-child(1) td:first-child {
+        color: #f39c12;
+        font-size: 1.3rem;
+        text-shadow: 0 0 20px rgba(243,156,18,0.3);
+    }
+    tbody tr:nth-child(2) td:first-child { color: #95a5a6; font-size: 1.2rem; }
+    tbody tr:nth-child(3) td:first-child { color: #cd7f32; font-size: 1.15rem; }
+
+    td {
+        padding: 14px 15px;
+        text-align: center;
+        border-bottom: 1px solid #f0f2f5;
         font-size: 0.95rem;
     }
-    
-    /* 侧边栏导航样式 */
-        .sidebar-nav {
-    /* 核心：覆盖为底部导航定位 */
-            position: fixed;
-            bottom: 0;
-            top: auto; /* 清除桌面端的 top: 50% */
-            left: 0;
-            right: 0;
-            transform: none; /* 清除桌面端的 transform: translateY(-50%) */
-    
-    /* 布局：从列变为行 */
-            flex-direction: row;
-            justify-content: space-around;
-    
-    /* 视觉调整 */
-            border-radius: 20px 20px 0 0 !important; /* 更大的圆角 */
-            padding: 12px 5px 15px !important; /* 调整内边距，特别是底部，为手机Home条留空间 */
-            box-shadow: 0 -8px 25px rgba(0,0,0,0.1) !important;
-    
-    /* 确保在手机端层级正确 */
-            z-index: 999;
-        }
+    td:first-child { font-weight: 700; color: var(--primary); font-size: 1.05rem; }
+    td:nth-child(3) { color: var(--accent); font-weight: 600; }
+    td:nth-child(5) { color: var(--secondary-dark); font-weight: 600; }
 
-        .sidebar-nav a {
-            padding: 8px 5px 6px !important; /* 调整链接内边距 */
-        } 
-        .sidebar-nav a:hover {
-            background-color: #f1f8ff;
-            color: #3498db;
-            transform: translateX(3px);
-        }
+    #filterInfo {
+        background: linear-gradient(135deg, #e8f4fd, #d0ebf9);
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin: 15px 0;
+        color: #1565c0;
+        font-weight: 500;
+        border-left: 4px solid #2196f3;
+    }
 
-        .sidebar-nav a.active {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
-        }
+    /* ===== Bottom Nav ===== */
+    .sidebar-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(20px);
+        padding: 10px 5px 18px;
+        border-radius: 22px 22px 0 0;
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.08);
+        z-index: 999;
+        gap: 8px;
+        border-top: 1px solid rgba(255,255,255,0.6);
+    }
+    .sidebar-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--gray);
+        padding: 8px 12px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-align: center;
+        min-height: 44px;
+        justify-content: center;
+    }
+    .sidebar-nav a:hover {
+        background-color: #f0f7ff;
+        color: var(--primary);
+        transform: translateY(-3px);
+    }
+    .sidebar-nav a.active {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(52,152,219,0.35);
+    }
+    .sidebar-nav .icon { font-size: 1.4rem; margin-bottom: 2px; }
+    .sidebar-nav .text { font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
 
-        .sidebar-nav .icon {
-            font-size: 1.4rem;
-            margin-bottom: 3px;
-        }
+    /* ===== Footer ===== */
+    .page-footer {
+        text-align: center;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid #eef0f3;
+        color: #bdc3c7;
+        font-size: 0.8rem;
+    }
+    .page-footer a {
+        color: #bdc3c7;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    .page-footer a:hover { color: var(--primary); }
 
-        .sidebar-nav .text {
-            font-size: 0.7rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        }
-        @media (min-width: 769px) and (max-width: 1100px) {
-            .container {
-                width: 95%; /* 让容器稍微收缩，留出边距 */
-                max-width: none; /* 移除最大宽度限制 */
-                padding: 20px; /* 减少内边距 */
-            }
-    
-            table {
-                width: 100%;
-                table-layout: fixed; /* 固定表格布局，列宽更均匀 */
-            }
-    
-    /* 调整列宽，让表格更紧凑 */
-            table th:nth-child(1), table td:nth-child(1) { width: 10%; } /* 排名 */
-            table th:nth-child(2), table td:nth-child(2) { width: 20%; } /* 姓名 */
-            table th:nth-child(3), table td:nth-child(3) { width: 15%; } /* 距离 */
-            table th:nth-child(4), table td:nth-child(4) { width: 15%; } /* 时间 */
-            table th:nth-child(5), table td:nth-child(5) { width: 20%; } /* 均速 */
-            table th:nth-child(6), table td:nth-child(6) { width: 20%; } /* 日期 */
-        }
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+        body { padding: 12px; }
+        .container { padding: 16px 14px 100px !important; border-radius: 18px; }
+        .page-header { margin: -16px -14px 20px; padding: 24px 16px 22px; border-radius: 18px 18px 0 0; }
+        .page-header h1 { font-size: 1.3rem; }
+        .page-header .subtitle { font-size: 0.7rem; letter-spacing: 1px; }
+
+        h1 { font-size: 1.5rem !important; }
+        h2 { font-size: 1.1rem !important; margin: 18px 0 12px; padding-left: 10px; }
+        h2::after { left: 10px; width: 30px; }
+
+        #filterSection { padding: 16px; }
+        #filterSection input[type="date"] { width: calc(50% - 6px) !important; display: inline-block; margin-right: 0; margin-bottom: 10px; }
+        #filterSection input[type="date"]:first-of-type { margin-right: 10px; }
+        #filterSection button { width: auto; min-width: 60px; padding: 8px 14px; margin-right: 6px; margin-bottom: 10px; }
+        #filterSection > div { margin-top: 6px; }
+
+        #searchName { width: calc(100% - 80px) !important; }
+
+        #dataForm { grid-template-columns: 1fr !important; padding: 18px !important; gap: 14px !important; }
+        #dataForm input { padding: 11px 14px !important; font-size: 16px !important; min-height: 44px; }
+        .form-group label { font-size: 0.85rem !important; margin-bottom: 4px !important; }
+        .form-group small { font-size: 0.75rem !important; }
+        #dataForm button[type="submit"] { padding: 13px 16px !important; font-size: 1rem !important; }
+
+        table { display: block; overflow-x: auto; font-size: 0.85rem; }
+        th, td { padding: 10px 8px; }
+
+        .sidebar-nav { padding: 8px 5px 16px !important; border-radius: 18px 18px 0 0 !important; }
+        .sidebar-nav a { padding: 6px 8px !important; }
+        .sidebar-nav .text { font-size: 0.65rem; }
+        .sidebar-nav .icon { font-size: 1.3rem; }
+
+        .brand-logo { top: 12px; right: 14px; padding: 6px 14px 6px 10px; }
+        .brand-logo .logo-icon { width: 30px; height: 30px; font-size: 0.95rem; }
+        .brand-logo .logo-text { font-size: 0.8rem; }
+        .brand-logo .logo-tag { display: none; }
+        .admin-mini-link { top: 58px; right: 18px; }
+
+        button:active, a:active { opacity: 0.7; transform: scale(0.98); }
+        .loading, .empty-state { padding: 30px 15px; font-size: 0.9rem; }
+    }
+
+    @media (max-width: 400px) {
+        .sidebar-nav .text { font-size: 0.6rem; }
+        .sidebar-nav .icon { font-size: 1.2rem; }
+    }
+
+    @media (min-width: 769px) and (max-width: 1100px) {
+        .container { width: 95%; max-width: none; padding: 24px; }
+        table th:nth-child(1), table td:nth-child(1) { width: 10%; }
+        table th:nth-child(2), table td:nth-child(2) { width: 20%; }
+        table th:nth-child(3), table td:nth-child(3) { width: 15%; }
+        table th:nth-child(4), table td:nth-child(4) { width: 15%; }
+        table th:nth-child(5), table td:nth-child(5) { width: 20%; }
+        table th:nth-child(6), table td:nth-child(6) { width: 20%; }
+    }
 </style>
 </head>
 <body>
+    <!-- 流去冰ISDream Logo -->
+    <a class="brand-logo" title="流去冰ISDream">
+        <span class="logo-icon">🚴</span>
+        <span>
+            <span class="logo-text">流去冰ISDream</span><br>
+            <span class="logo-tag">CYCLING · 骑行社</span>
+        </span>
+    </a>
+    <a href="/admin/login" class="admin-mini-link">⚙️ 管理</a>
+
     <nav class="sidebar-nav">
         <a href="/" class="active">
-            <div class="icon">🚴</div>
-            <div class="text">骑行数据</div>
+            <span class="icon">🚴</span>
+            <span class="text">骑行数据</span>
         </a>
         <a href="/news">
-            <div class="icon">📰</div>
-            <div class="text">新闻公告</div>
+            <span class="icon">📰</span>
+            <span class="text">新闻公告</span>
         </a>
     </nav>
     <div class="container">
-    
-    <h1>袁庚书院骑行社官方网站version0.0.8</h1>
-    
+        <div class="page-header">
+            <h1>🚴 袁庚书院骑行社</h1>
+            <div class="subtitle">RIDE · RECORD · RANK</div>
+            <div class="header-decoration"></div>
+        </div>
+
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-    <h2 style="margin: 0; border: none; padding: 0; color: #2c3e50;">填写新记录</h2>
-    <button type="button" id="toggleFormBtn" style="padding: 6px 12px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer;">
-        收起 ▲
-    </button>
+        <h2 style="margin: 0; border: none; padding: 0; color: var(--dark);">填写新记录</h2>
+        <button type="button" id="toggleFormBtn" style="padding: 6px 14px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+            收起 ▲
+        </button>
     </div>
     <div id="uploadFormContainer">
-    <form method="POST" id="dataForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end;">
-        <div class="form-group">
-            <label for="name">姓名</label>
-            <input type="text" id="name" name="name" required placeholder="请输入姓名">
-        </div>
-        <div class="form-group">
-            <label for="distance">距离 (公里)</label>
-            <input type="number" step="0.01" id="distance" name="distance" required placeholder="0.00">
-        </div>
-        <div class="form-group">
-            <label for="time">时间 (分钟)</label>
-            <input type="number" step="0.1" id="time" name="time" required placeholder="0.0">
-        </div>
-        <div class="form-group">
-            <label for="date">骑行日期</label>
-            <input type="date" id="date" name="date" required>
-        </div>
-        <div class="form-group">
-            <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center;">
-            <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1" style="margin-right: 8px;">
-            <span>匿名提交（数据计入统计，但排行榜和统计页不显示我的姓名）</span>
-            </label>
-            <small style="display: block; color: #7f8c8d; margin-top: 5px;">选择后，系统会为您生成一个固定代号。</small>
-        </div>
-        <div class="form-group" style="grid-column: span 1;">
-            <button type="submit" style="width: 100%;">提交数据</button>
-        </div>
-        <div class="form-group">
-            <label for="captcha">验证码</label>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <input type="text" id="captcha" name="captcha" required 
-                    placeholder="{{ captcha_question if captcha_question else '1 + 1 = ?' }}"
-                    style="flex: 1;">
-                <button type="button" onclick="refreshCaptcha()" 
-                    style="padding: 8px 12px; background: #6c757d; color: white; border: none; border-radius: 4px;">
-                    刷新
-                </button>
+        <form method="POST" id="dataForm">
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" required placeholder="请输入姓名">
             </div>
-            <small style="color: #6c757d;">请计算结果，防止机器人提交</small>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="distance">距离 (公里)</label>
+                <input type="number" step="0.01" id="distance" name="distance" required placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label for="time">时间 (分钟)</label>
+                <input type="number" step="0.1" id="time" name="time" required placeholder="0.0">
+            </div>
+            <div class="form-group">
+                <label for="date">骑行日期</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label style="font-weight: normal; cursor: pointer; display: flex; align-items: center; font-size: 0.9rem;">
+                    <input type="checkbox" id="is_anonymous" name="is_anonymous" value="1" style="margin-right: 8px; width: auto;">
+                    <span>匿名提交</span>
+                </label>
+                <small style="display: block; color: var(--gray); margin-top: 2px;">数据计入统计，排行榜和统计页不显示姓名</small>
+            </div>
+            <div class="form-group">
+                <button type="submit">提交数据</button>
+            </div>
+            <div class="form-group">
+                <label for="captcha">验证码</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="captcha" name="captcha" required
+                        placeholder="{{ captcha_question if captcha_question else '1 + 1 = ?' }}"
+                        style="flex: 1;">
+                    <button type="button" onclick="refreshCaptcha()"
+                        style="padding: 10px 14px; background: #6c757d; color: white; border: none; border-radius: 8px; font-size: 0.85rem; cursor: pointer;">
+                        刷新
+                    </button>
+                </div>
+                <small style="color: var(--gray); margin-top: 4px;">请计算结果，防止机器人提交</small>
+            </div>
+        </form>
     </div>
 
-<h2>数据筛选</h2>
-<div id="filterSection">
-    开始日期: <input type="date" id="startDate">
-    结束日期: <input type="date" id="endDate">
-    <button onclick="applyFilter()">筛选</button>
-    <button onclick="clearFilter()">清除筛选</button>
-    <div style="margin-top: 10px;">
-        姓名搜索: 
-        <input type="text" id="searchName" placeholder="输入姓名或匿名ID" 
-               style="padding: 8px; width: 200px; border: 2px solid #e0e0e0; border-radius: 6px;"
-               oninput="debouncedSearch()">
-        <button onclick="clearSearch()" style="padding: 8px 12px; background: #95a5a6; color: white; border: none; border-radius: 6px;">清空</button>
+    <h2>数据筛选</h2>
+    <div id="filterSection">
+        <span style="color: var(--dark); font-weight: 600;">开始日期:</span> <input type="date" id="startDate">
+        <span style="color: var(--dark); font-weight: 600;">结束日期:</span> <input type="date" id="endDate">
+        <button onclick="applyFilter()">筛选</button>
+        <button onclick="clearFilter()">清除筛选</button>
+        <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="color: var(--dark); font-weight: 600;">姓名搜索:</span>
+            <input type="text" id="searchName" placeholder="输入姓名或匿名ID"
+                   style="padding: 10px 14px; flex: 1; min-width: 150px; border: 2px solid #e8ecf1; border-radius: 8px; font-size: 0.95rem; outline: none; transition: border-color 0.3s ease;"
+                   oninput="debouncedSearch()"
+                   onfocus="this.style.borderColor='#3498db'"
+                   onblur="this.style.borderColor='#e8ecf1'">
+            <button onclick="clearSearch()" style="padding: 10px 16px; background: #95a5a6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">清空</button>
+        </div>
     </div>
-</div>
-    <h2>实时排行榜(点击排行榜中的姓名可以查看详细个人统计喵)</h2>
+
+    <h2>实时排行榜</h2>
+    <p style="color: var(--gray); font-size: 0.85rem; margin: -10px 0 10px 14px;">💡 点击姓名可查看详细个人统计</p>
     <select id="sortOption">
-    <option value="distance">按距离排序</option>
-    <option value="speed">按均速排序</option>
-    <option value="date">按日期排序</option>
-</select>
+        <option value="distance">🏆 按距离排序</option>
+        <option value="speed">⚡ 按均速排序</option>
+        <option value="date">📅 按日期排序</option>
+    </select>
     <table>
         <thead>
-        <tr>
-            <th>排名</th>
-            <th>姓名</th>
-            <th>距离 (km)</th>
-            <th>时间 (min)</th>
-            <th>均速 (km/h)</th>
-            <th>日期</th>
-        </tr>
+            <tr>
+                <th>排名</th>
+                <th>姓名</th>
+                <th>距离 (km)</th>
+                <th>时间 (min)</th>
+                <th>均速 (km/h)</th>
+                <th>日期</th>
+            </tr>
         </thead>
         <tbody id="ranking">
-            <!-- 数据由 JavaScript 填充 -->
+            <!-- Data populated by JavaScript -->
         </tbody>
     </table>
-</div>
-<div style="text-align: center; margin-top: 40px; color: #bdc3c7; font-size: 0.8rem;">
-    <a href="/admin/login" id="admin-corner-link" style="
-    position: fixed; /* 固定定位 */
-    top: 20px; /* 距离顶部 20 像素 */
-    right: 20px; /* 距离右侧 20 像素 */
-    z-index: 1001; /* 确保浮于大部分内容之上 */
-    color: #bdc3c7; /* 保持原有浅灰色 */
-    font-size: 0.8rem; /* 保持小字体 */
-    text-decoration: none; /* 去除下划线 */
-    padding: 5px 10px; /* 增加一点内边距，方便点击 */
-    background-color: rgba(255, 255, 255, 0.7); /* 半透明白色背景，提高在复杂背景上的可读性 */
-    border-radius: 3px; /* 轻微圆角 */
-    transition: all 0.3s ease; /* 添加过渡效果 */
-    backdrop-filter: blur(5px); /* 毛玻璃背景效果（可选，增强质感） */
-">
-    管理
-</a>
+
+    <div class="page-footer">
+        <a href="/admin/login">⚙️ 管理后台</a> &middot; 袁庚书院骑行社 &middot; version 0.0.8
+    </div>
 </div>
 <script>
     function refreshCaptcha() {
